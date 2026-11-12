@@ -1,0 +1,52 @@
+import { test, expect } from "@playwright/test";
+import { once } from "node:events";
+import type { AddressInfo } from "node:net";
+import type { Server } from "node:http";
+import { mkdtemp, rm, readFile } from "node:fs/promises";
+import path from "node:path";
+import os from "node:os";
+import { createApp } from "../src/server-app.ts";
+import { GenerationSession } from "../src/artifacts.ts";
+import { provider } from "./fixtures.ts";
+
+let server: Server, endpoint: string, root: string, p: Awaited<ReturnType<typeof provider>>;
+test.beforeAll(async () => {
+  p = await provider(); root = await mkdtemp(path.join(os.tmpdir(), "evide-browser-test-"));
+  server = createApp({ session: new GenerationSession({ config: () => p.config, archifyCli: path.join(root, "absent.mjs") }), outputRoot: root, webRoot: path.resolve("dist/web") });
+  server.listen(0, "127.0.0.1"); await once(server, "listening");
+  endpoint = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+});
+test.afterAll(async () => {
+  server?.closeAllConnections();
+  if (server) await new Promise<void>((resolve) => server.close(() => resolve()));
+  await p?.close(); if (root) await rm(root, { recursive: true, force: true });
+});
+test("prompt -> source/PMO/IR/analysis -> save/ZIP -> safe apply, on desktop and narrow sidebar", async ({ page }) => {
+  await page.goto(endpoint);
+  await expect(page.getByRole("status")).toContainText("준비됨");
+  await page.getByLabel("구현할 업무를 설명하세요").fill("민원 승인과 공지 CRUD를 생성해줘.");
+  await page.getByRole("button", { name: "설계 및 코드 생성" }).click();
+  await expect(page.getByRole("status")).toContainText("파일 생성 완료");
+  await expect(page.getByText("ARCHIFY_MISSING", { exact: false })).toBeVisible();
+  await page.getByRole("button", { name: "PMO 문서", exact: true }).click();
+  await expect(page.locator("#file option")).toHaveCount(5);
+  await expect(page.locator("#preview")).toContainText("요구사항 정의서");
+  const save = page.waitForEvent("download");
+  await page.getByRole("button", { name: "현재 파일 저장" }).click();
+  expect((await save).suggestedFilename()).toBe("01-requirements.md");
+  await page.getByRole("button", { name: "Archify", exact: true }).click();
+  await expect(page.locator("#diagram-status")).toContainText("IR은 보존");
+  await expect(page.locator("#ir")).toContainText('"diagram_type": "architecture"');
+  await page.getByRole("button", { name: "소스 분석", exact: true }).click();
+  await expect(page.locator("#preview")).toContainText('"semanticCallGraph": false');
+  const zip = page.waitForEvent("download");
+  await page.getByRole("button", { name: "ZIP 내보내기" }).click();
+  expect((await zip).suggestedFilename()).toBe("citizen-platform.zip");
+  await page.getByRole("button", { name: "💾 적용", exact: true }).click();
+  await expect(page.getByRole("status")).toContainText("Applied to");
+  expect(await readFile(path.join(root, "citizen-platform", "pom.xml"), "utf8")).toContain("5.0.0");
+  await page.getByRole("button", { name: "💾 적용", exact: true }).click();
+  await expect(page.getByRole("status")).toContainText("never overwritten");
+  await page.setViewportSize({ width: 340, height: 900 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+});

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="{{CSP}}">
+  <title>Evide · eGov Java Engine</title>
+  <link rel="stylesheet" href="{{STYLE}}">
+</head>
+<body>
+  <main>
+    <header><span class="badge">eGovFrame 5 · Java 17</span><h1>Evide</h1><p>자연어에서 검토 가능한 Java·DDL·PMO 산출물까지</p></header>
+    <section class="input-panel">
+      <label for="prompt">구현할 업무를 설명하세요</label>
+      <textarea id="prompt" maxlength="12000" rows="6" placeholder="민원 접수 서비스를 만들어줘. 제목과 내용은 필수이고 담당자가 승인 또는 반려할 수 있어야 해."></textarea>
+      <p class="hint">지원: 서비스별 단일 엔터티 CRUD·검색·승인/반려. 입력 내용은 설정한 LLM 공급자에게 전송됩니다. 비밀·개인정보는 입력하지 마세요.</p>
+      <div class="actions"><button id="generate" class="primary">설계 및 코드 생성</button><button id="configure">LLM 설정 안내</button></div>
+    </section>
+    <p id="status" role="status" aria-live="polite">LLM 설정 후 자연어를 입력하세요. 자동 인증·무조건적 준수를 보증하지 않습니다.</p>
+    <section id="result" hidden>
+      <h2 id="title"></h2><p id="summary"></p>
+      <details><summary>해석 가정 · 적용 전 확인</summary><ul id="assumptions"></ul></details>
+      <ul id="findings" class="warnings"></ul>
+      <div class="actions"><button id="apply">💾 적용</button><button id="export">ZIP 내보내기</button><button id="save">현재 파일 저장</button></div>
+      <nav aria-label="산출물"><button data-tab="files" aria-pressed="true">소스·DDL</button><button data-tab="pmo">PMO 문서</button><button data-tab="archify">Archify</button><button data-tab="analysis">소스 분석</button></nav>
+      <div id="file-panel"><label for="file">파일 선택</label><select id="file"></select><pre id="preview" tabindex="0"></pre></div>
+      <div id="diagram-panel" hidden><label for="diagram">다이어그램 종류</label><select id="diagram"><option value="architecture">Architecture</option><option value="erd">ERD</option><option value="class">Class Structure</option><option value="tree">Tree</option></select><p id="diagram-status"></p><button id="view-diagram">HTML 다이어그램 열기</button><pre id="ir" tabindex="0"></pre><iframe id="diagram-frame" title="격리된 Archify 다이어그램" sandbox="allow-scripts" hidden></iframe></div>
+    </section>
+    <footer>한정된 정적 검증과 생성된 시험 소스는 실제 Maven 실행·보안 감리·기관 승인을 대체하지 않습니다.</footer>
+  </main>
+  <script src="{{SCRIPT}}" defer></script>
+</body>
+</html>

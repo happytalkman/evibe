@@ -1,0 +1,16 @@
+src/**
+tests/**
+scripts/**
+spec/**
+node_modules/**
+vendor/**
+.tools/**
+generated/**
+test-results/**
+playwright-report/**
+*.vsix
+*.ts
+*.mjs
+package-lock.json
+tsconfig.json
+.env

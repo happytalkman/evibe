@@ -1,0 +1,9 @@
+node_modules/
+dist/
+generated/
+vendor/
+.tools/
+.env
+*.vsix
+test-results/
+playwright-report/

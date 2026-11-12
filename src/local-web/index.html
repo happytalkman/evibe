@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="ko">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Evide · 실제 Java API 확인</title><link rel="stylesheet" href="/style.css"></head>
+<body><main>
+<header><span class="badge">LOCAL JVM / H2 / JWT</span><h1>실제 Java API 확인</h1><p id="title"></p></header>
+<p class="warnings">개발 전용 페이지입니다. JWT 서명 키는 메모리에만 있으며 운영에 사용하면 안 됩니다. 요청은 실제 Gateway → Eureka → Java 서비스 → H2 경로로 실행됩니다.</p>
+<section class="input-panel">
+<label for="service">서비스</label><select id="service"></select>
+<label for="operation">API 작업</label><select id="operation"><option value="list">목록 조회</option><option value="create">등록</option><option value="get">단건 조회</option><option value="update">수정</option><option value="delete">삭제</option><option value="approve">승인</option><option value="reject">반려</option></select>
+<label for="record-id">대상 ID</label><input id="record-id" type="number" min="1" value="1">
+<label for="body">요청 JSON</label><textarea id="body" rows="8"></textarea>
+<div class="actions"><button id="send" class="primary">실제 API 요청</button></div>
+</section>
+<p id="status" role="status">로컬 생성물 정보를 읽는 중…</p><pre id="response" tabindex="0"></pre>
+<h2>실행 상태</h2><ul id="health"></ul>
+<footer>운영 IdP·PostgreSQL·Docker 배포 시험과는 별개인 로컬 검증입니다. 종료: 실행 터미널 Ctrl+C.</footer>
+</main><script src="/app.js" defer></script></body></html>
